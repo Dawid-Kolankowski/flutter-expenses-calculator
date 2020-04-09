@@ -1,10 +1,9 @@
-import 'package:expenses_calculator/widgets/new_transaction.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter/services.dart';
 
-import './widgets/transaction_list.dart';
 import './widgets/new_transaction.dart';
+import './widgets/chart.dart';
+import './widgets/transaction_list.dart';
 import './models/transaction.dart';
 
 void main() => runApp(App());
@@ -15,10 +14,26 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter App',
       home: HomePage(),
-      theme:ThemeData(
-        primarySwatch: Colors.amber,
-        accentColor: Colors.deepOrange
-      ),
+      theme: ThemeData(
+          primarySwatch: Colors.amber,
+          accentColor: Colors.deepOrange,
+          fontFamily: 'Quicksand',
+          textTheme: ThemeData.light().textTheme.copyWith(
+                title: TextStyle(
+                  fontFamily: 'OpenSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+          appBarTheme: AppBarTheme(
+            textTheme: ThemeData.light().textTheme.copyWith(
+                  title: TextStyle(
+                    fontFamily: 'OpenSans',
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+          )),
     );
   }
 }
@@ -31,11 +46,21 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final List<Transaction> _userTransactions = [];
 
-  void _addNewTransaction(String title, double amount) {
+  List<Transaction> get _recentTransactions {
+    return _userTransactions.where((transaction) {
+      return transaction.date.isAfter(
+        DateTime.now().subtract(
+          Duration(days: 7),
+        ),
+      );
+    }).toList();
+  }
+
+  void _addNewTransaction(String title, double amount, DateTime date) {
     final newTx = Transaction(
       title: title,
       amount: amount,
-      date: DateTime.now(),
+      date: date,
       id: DateTime.now().toString(),
     );
 
@@ -57,6 +82,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _deleteTransaction(String id) {
+    setState(() {
+      _userTransactions.removeWhere((tx) => tx.id == id);
+        
+      
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
@@ -73,13 +106,8 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(top: 10),
-              child: Card(
-                child: Text('CHART'),
-              ),
-            ),
-            TransactionList(_userTransactions),
+            Chart(_recentTransactions),
+            TransactionList(_userTransactions,_deleteTransaction),
           ],
         ),
       ),
