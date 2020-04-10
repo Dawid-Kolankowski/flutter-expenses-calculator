@@ -8,7 +8,8 @@ class TransactionCard extends StatelessWidget {
   final String id;
   final Function deleteTransaction;
 
-  TransactionCard({this.title, this.date, this.amount,this.id,this.deleteTransaction});
+  TransactionCard(
+      {this.title, this.date, this.amount, this.id, this.deleteTransaction});
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +35,19 @@ class TransactionCard extends StatelessWidget {
           subtitle: Text(
             DateFormat.yMMMd().format(date),
           ),
-          trailing: IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: ()=>deleteTransaction(id),
-            color:Colors.red[800],
-          )),
+          trailing: MediaQuery.of(context).size.width > 700
+              ? FlatButton.icon(
+                textColor: Theme.of(context).errorColor,
+               
+                  onPressed: () => deleteTransaction(id),
+                  icon: Icon(Icons.delete),
+                  label: Text('Delete'),
+                )
+              : IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () => deleteTransaction(id),
+                  color: Theme.of(context).errorColor,
+                )),
     );
 
     // return Card(
